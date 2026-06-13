@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Health Care System</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style2.css') }}?v=9">
+    <!-- Leaflet.js (OpenStreetMap) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body>
+    <!-- App Container to simulate mobile view on desktop -->
+    <div id="app-container">
+
+        <!-- Navbar -->
+        <nav id="navbar" class="hidden">
+            <div class="nav-brand">
+                <i class="fa-solid fa-heart-pulse"></i> SmartHealth
+            </div>
+            <button id="logout-btn" class="btn-text hidden">Logout</button>
+            <button id="back-btn" class="btn-text hidden"><i class="fa-solid fa-arrow-left"></i> Back</button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main id="main-content">
+
+            <!-- Authentication View (Login/Register) -->
+            <section id="auth-view" class="view active">
+                <div class="auth-container">
+                    <div class="logo-box">
+                        <i class="fa-solid fa-heart-pulse logo-icon"></i>
+                        <h1>SmartHealth</h1>
+                        <p>Your Health, Our Priority</p>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form id="login-form" class="auth-form">
+                        <h2>Login</h2>
+                        <div class="input-group">
+                            <i class="fa-solid fa-mobile-screen"></i>
+                            <input type="tel" id="login-mobile" placeholder="Mobile Number" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" id="login-password" placeholder="Password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                        <p class="toggle-auth">Don't have an account? <span id="show-register">Register</span></p>
+                    </form>
+
+                    <!-- Register Form -->
+                    <form id="register-form" class="auth-form hidden">
+                        <h2>Register</h2>
+                        <div class="input-group">
+                            <i class="fa-solid fa-mobile-screen"></i>
+                            <input type="tel" id="reg-mobile" placeholder="Mobile Number" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" id="reg-password" placeholder="Password" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" id="reg-confirm" placeholder="Confirm Password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Register</button>
+                        <p class="toggle-auth">Already have an account? <span id="show-login">Login</span></p>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Dashboard View -->
+            <section id="dashboard-view" class="view hidden" style="padding-top: 30px;">
+                <!-- Image Slider -->
+                <div class="slider-container">
+                    <div class="slide-wrapper" id="main-slider">
+                        <div class="slide"
+                            style="background-image: url('{{ url_for('static', filename='images/slide1.png') }}');">
+                        </div>
+                        <div class="slide"
+                            style="background-image: url('{{ url_for('static', filename='images/slide2.png') }}');">
+                        </div>
+                        <div class="slide"
+                            style="background-image: url('{{ url_for('static', filename='images/healthcare_bg.png') }}');">
+                        </div>
+                        <div class="slide"
+                            style="background-image: url('{{ url_for('static', filename='images/slide3.png') }}');">
+                        </div>
+                        <div class="slide"
+                            style="background-image: url('{{ url_for('static', filename='images/slide4.png') }}');">
+                        </div>
+                        <div class="slide"
+                            style="background-image: url('{{ url_for('static', filename='images/slide5.png') }}');">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Bar Profile -->
+                <div class="dash-top-bar">
+                    <div class="user-info">
+                        <div class="user-titles">
+                            <p class="greeting">Welcome Back</p>
+                            <p class="sub-greeting">Get Ready</p>
+                        </div>
+                    </div>
+                    <div style="position: relative;">
+                        <button class="icon-btn-circle" id="bell-icon-btn">
+                            <i class="fa-regular fa-bell"></i>
+                            <span id="notification-badge" class="badge hidden">0</span>
+                        </button>
+                        <div id="notifications-dropdown" class="dropdown-menu hidden">
+                            <div class="dropdown-header">Notifications</div>
+                            <div id="notifications-list" class="dropdown-list">
+                                <!-- Notifications injected via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dash-title-section">
+                    <p>Patient Management</p>
+                    <h2><i>Dashboard</i></h2>
+                </div>
+
+                <div class="calendar-row" id="dynamic-calendar">
+                    <!-- Calendar dates injected via JS -->
+                </div>
+
+                <div class="nav-grid">
+                    <div class="glass-card nav-card" data-target="explore-view">
+                        <p>Analysis</p>
+                        <h3>Explore<br>Symptoms</h3>
+                        <div class="lime-circle"><i class="fa-solid fa-plus"></i></div>
+                    </div>
+                    <div class="glass-card nav-card" data-target="stores-view">
+                        <p>Location</p>
+                        <h3>Nearby<br>Stores</h3>
+                        <div class="lime-circle"><i class="fa-solid fa-location-dot"></i></div>
+                    </div>
+                    <div class="glass-card nav-card" data-target="chat-view">
+                        <p>AI Helper</p>
+                        <h3>Health<br>Chatbot</h3>
+                        <div class="lime-circle"><i class="fa-solid fa-robot"></i></div>
+                    </div>
+                    <div class="glass-card nav-card" data-target="history-view">
+                        <p>Previous</p>
+                        <h3>Search<br>History</h3>
+                        <div class="lime-circle"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    </div>
+                    <div class="glass-card nav-card" data-target="schedule-view">
+                        <p>Reminders</p>
+                        <h3>Medicine<br>Schedule</h3>
+                        <div class="lime-circle"><i class="fa-solid fa-pills"></i></div>
+                    </div>
+                </div>
+
+                <!-- Health Benefits Section -->
+                <div class="benefits-section">
+                    <h3 class="section-title">Health Benefits</h3>
+                    <div class="benefit-card">
+                        <img src="{{ url_for('static', filename='images/benefit1.png') }}" alt="Benefit">
+                        <div class="benefit-info">
+                            <h4>Daily Wellness</h4>
+                            <p>Track your vitals and stay active with our personalized health tips.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-info">
+                            <h4>Quick Search</h4>
+                            <p>Instantly find medicines and remedies for common symptoms.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-footer-btn">
+                    <button class="btn-lime-home" id="big-home-btn">
+                        <i class="fa-solid fa-arrow-up-right-dots"></i>
+                    </button>
+                    <button class="btn-test-alarm" id="test-alarm-btn" title="Test Alarm & Speech">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Explore Symptoms View -->
+            <section id="explore-view" class="view hidden">
+                <div class="page-header">
+                    <h2>Explore Symptoms</h2>
+                    <p>Tell us how you are feeling</p>
+                </div>
+
+                <div class="form-container">
+                    <form id="symptoms-form">
+                        <div class="input-group stacked">
+                            <label for="symptoms-input">Enter Symptoms (e.g. headache, fever):</label>
+                            <textarea id="symptoms-input" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Analyze Symptoms</button>
+                    </form>
+                </div>
+
+                <div id="recommendation-result" class="result-card hidden">
+                    <h3><i class="fa-solid fa-clipboard-check"></i> Analysis Result</h3>
+                    <div class="result-item">
+                        <strong>Possible Illness:</strong> <span id="res-illness"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Suggested Medicine:</strong> <span id="res-medicine"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Usage:</strong> <span id="res-usage"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Timing:</strong> <span id="res-timing"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Precautions:</strong> <span id="res-precautions"></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Nearby Medical Stores View -->
+            <section id="stores-view" class="view hidden">
+                <div class="page-header">
+                    <h2>Nearby Medical Stores</h2>
+                    <p>Find pharmacies close to you</p>
+                </div>
+
+                <!-- Leaflet Map -->
+                <div id="map-container" style="margin-bottom: 16px;">
+                    <div id="map"
+                        style="height: 260px; width: 100%; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);">
+                    </div>
+                </div>
+
+                <!-- Store Cards injected via JS -->
+                <div class="stores-list" id="stores-list"></div>
+            </section>
+
+            <!-- AI Chatbot View -->
+            <section id="chat-view" class="view hidden">
+                <div class="chat-container">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="message bot">
+                            <div class="msg-bubble">Hi there! I am your AI Health Assistant. How can I help you today?
+                            </div>
+                        </div>
+                    </div>
+                    <form id="chat-form" class="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="Type a message..." required>
+                        <button type="submit" class="btn-send"><i class="fa-solid fa-paper-plane"></i></button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Search History View -->
+            <section id="history-view" class="view hidden">
+                <div class="page-header">
+                    <h2>Search History</h2>
+                    <p>Your past symptom checks</p>
+                </div>
+
+                <div class="history-list" id="history-list">
+                    <!-- History injected via JS -->
+                </div>
+            </section>
+
+            <!-- Medicine Schedule View -->
+            <section id="schedule-view" class="view hidden">
+                <div class="page-header">
+                    <h2>Medicine Schedule</h2>
+                    <p>Set your daily reminders</p>
+                </div>
+
+                <div class="form-container">
+                    <form id="reminder-form">
+                        <div class="input-group stacked">
+                            <label for="med-name-input">Medicine Name:</label>
+                            <input type="text" id="med-name-input" placeholder="e.g. Paracetamol" required
+                                style="width:100%; padding: 14px; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; color: #fff;">
+                        </div>
+                        <div class="input-group stacked">
+                            <label for="med-time-input">Time:</label>
+                            <input type="time" id="med-time-input" required
+                                style="width:100%; padding: 14px; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; color: #fff; color-scheme: dark;">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Set Reminder</button>
+                    </form>
+                </div>
+
+                <div class="reminders-list" id="reminders-list" style="margin-top:20px;">
+                    <!-- Reminders injected via JS -->
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, updateDoc, doc, query, where, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAKrgr2spNasTfvAE3n-WdFJmG4R84Vdvw",
+            authDomain: "smart-healthcare-ac042.firebaseapp.com",
+            projectId: "smart-healthcare-ac042",
+            storageBucket: "smart-healthcare-ac042.firebasestorage.app",
+            messagingSenderId: "187672282456",
+            appId: "1:187672282456:web:5e964a9429f28d92c5912d",
+            measurementId: "G-WB28D9TBE5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Export to window for non-module app.js access
+        window.fb = {
+            db, collection, addDoc, getDocs, deleteDoc, updateDoc, doc, query, where, orderBy, onSnapshot, serverTimestamp
+        };
+    </script>
+
+    <!-- Application Logic -->
+    <script src="{{ url_for('static', filename='js/app.js') }}?v=10"></script>
+</body>
+
+</html>
