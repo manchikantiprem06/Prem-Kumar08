@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Health Care System</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Leaflet.js (OpenStreetMap) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body>
+    <!-- App Container to simulate mobile view on desktop -->
+    <div id="app-container">
+
+        <!-- Navbar -->
+        <nav id="navbar" class="hidden">
+            <div class="nav-brand">
+                <i class="fa-solid fa-heart-pulse"></i> SmartHealth
+            </div>
+            <button id="logout-btn" class="btn-text hidden">Logout</button>
+            <button id="back-btn" class="btn-text hidden"><i class="fa-solid fa-arrow-left"></i> Back</button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main id="main-content">
+
+            <!-- Authentication View (Login/Register) -->
+            <section id="auth-view" class="view active">
+                <div class="auth-container">
+                    <div class="logo-box">
+                        <i class="fa-solid fa-heart-pulse logo-icon"></i>
+                        <h1>SmartHealth</h1>
+                        <p>Your Health, Our Priority</p>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form id="login-form" class="auth-form">
+                        <h2>Login</h2>
+                        <div class="input-group">
+                            <i class="fa-solid fa-mobile-screen"></i>
+                            <input type="tel" id="login-mobile" placeholder="Mobile Number" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" id="login-password" placeholder="Password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                        <p class="toggle-auth">Don't have an account? <span id="show-register">Register</span></p>
+                    </form>
+
+                    <!-- Register Form -->
+                    <form id="register-form" class="auth-form hidden">
+                        <h2>Register</h2>
+                        <div class="input-group">
+                            <i class="fa-solid fa-mobile-screen"></i>
+                            <input type="tel" id="reg-mobile" placeholder="Mobile Number" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" id="reg-password" placeholder="Password" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" id="reg-confirm" placeholder="Confirm Password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Register</button>
+                        <p class="toggle-auth">Already have an account? <span id="show-login">Login</span></p>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Dashboard View -->
+            <section id="dashboard-view" class="view hidden">
+                <div class="dashboard-header">
+                    <h2>Welcome back!</h2>
+                    <p>What would you like to do today?</p>
+                </div>
+
+                <div class="nav-grid">
+                    <div class="nav-card" data-target="explore-view">
+                        <div class="icon-circle bg-blue">
+                            <i class="fa-solid fa-stethoscope"></i>
+                        </div>
+                        <h3>Explore Symptoms</h3>
+                    </div>
+
+                    <div class="nav-card" data-target="stores-view">
+                        <div class="icon-circle bg-green">
+                            <i class="fa-solid fa-house-medical"></i>
+                        </div>
+                        <h3>Nearby Stores</h3>
+                    </div>
+
+                    <div class="nav-card" data-target="chat-view">
+                        <div class="icon-circle bg-purple">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <h3>AI Chatbot</h3>
+                    </div>
+
+                    <div class="nav-card" data-target="history-view">
+                        <div class="icon-circle bg-orange">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </div>
+                        <h3>Search History</h3>
+                    </div>
+                </div>
+
+                <div class="home-btn-container">
+                    <button class="btn-big-home" id="big-home-btn">
+                        <i class="fa-solid fa-house"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Explore Symptoms View -->
+            <section id="explore-view" class="view hidden">
+                <div class="page-header">
+                    <h2>Explore Symptoms</h2>
+                    <p>Tell us how you are feeling</p>
+                </div>
+
+                <div class="form-container">
+                    <form id="symptoms-form">
+                        <div class="input-group stacked">
+                            <label for="symptoms-input">Enter Symptoms (e.g. headache, fever):</label>
+                            <textarea id="symptoms-input" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Analyze Symptoms</button>
+                    </form>
+                </div>
+
+                <div id="recommendation-result" class="result-card hidden">
+                    <h3><i class="fa-solid fa-clipboard-check"></i> Analysis Result</h3>
+                    <div class="result-item">
+                        <strong>Possible Illness:</strong> <span id="res-illness"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Suggested Medicine:</strong> <span id="res-medicine"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Usage:</strong> <span id="res-usage"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Timing:</strong> <span id="res-timing"></span>
+                    </div>
+                    <div class="result-item">
+                        <strong>Precautions:</strong> <span id="res-precautions"></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Nearby Medical Stores View -->
+            <section id="stores-view" class="view hidden">
+                <div class="page-header">
+                    <h2>Nearby Medical Stores</h2>
+                    <p>Find pharmacies close to you</p>
+                </div>
+
+                <div id="map-container" style="margin-bottom: 20px;">
+                    <div id="map"
+                        style="height: 300px; width: 100%; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);">
+                    </div>
+                </div>
+
+                <div class="stores-list" id="stores-list">
+                    <!-- Stores injected via JS -->
+                </div>
+            </section>
+
+            <!-- AI Chatbot View -->
+            <section id="chat-view" class="view hidden">
+                <div class="chat-container">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="message bot">
+                            <div class="msg-bubble">Hi there! I am your AI Health Assistant. How can I help you today?
+                            </div>
+                        </div>
+                    </div>
+                    <form id="chat-form" class="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="Type a message..." required>
+                        <button type="submit" class="btn-send"><i class="fa-solid fa-paper-plane"></i></button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Search History View -->
+            <section id="history-view" class="view hidden">
+                <div class="page-header">
+                    <h2>Search History</h2>
+                    <p>Your past symptom checks</p>
+                </div>
+
+                <div class="history-list" id="history-list">
+                    <!-- History injected via JS -->
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Application Logic -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+
+</html>
